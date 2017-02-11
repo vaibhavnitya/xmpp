@@ -1,38 +1,72 @@
 'use strict';
 
+var express= require('express');
+var bodyParser = require('body-parser');
+var httpServer = express();
+
 var Server = require('node-xmpp-server').C2S.WebSocketServer;
 
-var PORT = 7777;
+var dataBbase = require('./database.js');
+var dBase = new dataBbase();
+
+var clientOperation = require('./clientOperations.js');
+var clientOps = new clientOperation();
+
+var xmppPORT = 7777;
+var httpPORT = 5050;
 var server;
 
+var connections = [];
+
+httpServer.use(express.static(__dirname));
+
+httpServer.set('views', __dirname +'/views');
+httpServer.set('view engine', 'ejs');
+httpServer.engine('html', require('ejs').renderFile);
+
+httpServer.listen(httpPORT, function() {
+    log('HTTP server listening at port', httpPORT);
+});
+
+httpServer.get('/', function(req,res){
+    res.render('home');
+});
+
+dBase.initiateDatabase(function (err, dBase) {
+	if(err) {
+		process.exit(1);
+	}
+});
+
 server = new Server({
-	port: PORT,
+	port: xmppPORT,
 	domain: 'localhost'
 });
 
 server.on('connection', function (client) {
-
+	
 	// Allows the developer to register the jid against anything they want
     client.on('register', function (opts, cb) {
   		log('register the client', opts.jid);
-  		registration(opts, cb);
+  		clientOps.registration(opts, cb);
     });
 
 	// Allows the developer to authenticate the user
 	client.on('authenticate', function (opts, cb) {
 		log('client trying to authenticate. JID', opts.jid);
-		authentication(opts, cb);
+		clientOps.authentication(opts, cb);
 	});
 
 	// when a client is online
 	client.on('online', function () {
-    	log('client STATUS is online', client.jid.local);
+    	log('client STATUS is online', client.jid.user);
+		connections[client.jid.user] = client;
     });
 
     // When client sends a message. Handling the stanza
     client.on('stanza', function (stanza) {
-    	log('received message from the client', stanza);
-    	processMessage(client, stanza);
+    	log('received message from the client', stanza.attrs);
+    	clientOps.processMessage(connections, client.jid.user, stanza);
     });
 
 	// On Disconnect event. When a client disconnects
@@ -42,49 +76,12 @@ server.on('connection', function (client) {
 });
 
 server.on('listening', function (par) {
-	log('server is listening on port', PORT);
+	log('server is listening on port', xmppPORT);
 });
 
 server.on('online', function (par) {
 	log('server is online now');
 });
-
-/**
-* Server functions to be performed on the client
-**/
-// authentication of the client
-var authentication = function (params, response) {
-	if (params.username && params.password) {
-		response(null, params);
-	} else{
-		response(false);
-	}
-};
-
-// registration of the client
-var registration = function (params, response) {
-	response(true);
-};
-
-// process the message from the client
-var processMessage = function (client, message) {
-	log('processing message');
-
-	if (message.is('presence')) {
-		log('prsence of the client updated', client.jid);
-		updatePresence(client.jid.local, message.attrs.status);
-	} else if (message.is('message')) {
-    	// Stanza handling
-	    var from = message.attrs.from;
-	    message.attrs.from = message.attrs.to;
-	    message.attrs.to = from;
-	    client.send(message);
-	}
-};
-
-var updatePresence = function (user, presence) {
-	log('presence of the user' + user + 'is updated to', presence);
-};
 
 /**
 * function for debugging usage

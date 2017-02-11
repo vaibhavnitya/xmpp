@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Messaging application</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="/node_modules/node-xmpp-client/browserify.js"></script>
+        <script>
+        $(document).ready(function(){
+            var client;
+            var host = 'localhost';
+            var name;
+            
+            $('#nameSubmit').click(function () {
+                name = ($('#name')[0]).value;
+                client = new XMPP.Client({
+                    jid: name + '@' + host,
+                    password: 'ssdfsdf',
+                    websocket: {
+                        url: 'ws://localhost' + ':' + '7777'
+                    },
+                    autoStart: true
+                });
+
+                client.on('online', function () {
+                    console.log('client: Client is connected to the server');
+                    ($('#open')[0]).style.display = 'none';
+                    ($('#message')[0]).style.display = 'block';
+                });
+
+                client.on('stanza', function (stanza) {
+                    console.log('client: Received stanza: ' + stanza.toString());
+                    var parser = new DOMParser();
+                    var xmlDoc = parser.parseFromString(stanza,"text/xml");
+                    var message = xmlDoc.getElementsByTagName('message')[0];
+                    var to = message.getAttribute('to');
+                    var from = message.getAttribute('from');
+                    var messageText = message.getAttribute('message');
+                    ($('#allMessages')[0]).innerHTML += '<br>' + 'From:' + from + '<br>' + messageText +'<br>';
+                });
+            });
+
+            $('#textSend').click(function () {
+                var text = ($('#messageText')[0]).value;
+                var dest = ($('#receiverName')[0]).value;
+                var message = new XMPP.Client.Stanza('message', {
+                    to: dest,
+                    from: name,
+                    type: 'chat',
+                    message: text
+                });
+                client.send(message);
+            });
+
+            $('#quit').click(function () {
+                ($('#open')[0]).style.display = 'block';
+                ($('#message')[0]).style.display = 'none';
+                client.end();
+                name = null;
+                client = null;
+            });
+        });
+        </script>
+    </head>
+    <body>
+        <div id="open" style="display:block">
+            <h1>WELCOME TO XMPP</h1>
+            <h2>
+                Enter your name:
+                <input type="text" id="name" placeholder="name">
+            </h2>
+            <input type="button" id="nameSubmit" value="START">
+        </div>
+        <div id="message" style="display:none">
+            <h1>WELCOME TO XMPP</h1>
+            <h2>
+                Message recipient:
+                <input type="text" id="receiverName" placeholder=" receiver name">
+            </h2>
+            <div id="allMessages">
+            </div>
+            <h2>Enter your Text Messages</h2>
+            <textarea id="messageText" cols="40" rows="5"></textarea>
+            <h2><input type="button" id="textSend" value="SEND"></h2>
+            <h2><br><br><input type="button" id="quit" value="QUIT"></h2>
+        </div>
+    </body>
+</html>

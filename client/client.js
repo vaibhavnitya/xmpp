@@ -13,19 +13,16 @@ var client;
 
 // create a new client to login to the server
 client = new Client({
-  jid: 'sonny@localhost',
-  password: 'foo',
-  websocket: {
-    url: SERVER + ':' + PORT
-  }
+	jid: 'client1@localhost',
+	password: 'naik',
+	websocket: {
+		url: SERVER + ':' + PORT
+	}
 });
 
 // check if the client is connected to the server successfully
 client.on('online', function () {
-   console.log('client: Client is connected to the server');
-   setTimeout(function(){
-   	sendMessage();
-   }, 5000);
+	console.log('client: Client is connected to the server');
 });	
 
 // checks if the client received any message from the server
@@ -40,7 +37,7 @@ client.on('offline', function () {
 
 // tries to reconnect on client offline
 client.on('reconnect', function () {
-  console.log('client: Client reconnects …');
+  	console.log('client: Client reconnects …');
 });
 
 // checks if the client is disconnected and tries to reconnect
@@ -50,12 +47,12 @@ client.on('disconnect', function (e) {
 
 // log if error on client
 client.on('error', function (err) {
-  console.error(err);
+  	console.error(err);
 });
 
 // close the client on process exit
 process.on('exit', function () {
-  client.end();
+ 	client.end();
 });
 
 
@@ -65,11 +62,11 @@ process.on('exit', function () {
 
 // function to register to the server
 var registerClient = function () {
-  var stanza = new Client.Stanza('iq', {type: 'set', id: 'client1', to: SERVER})
-   .c('query', {xmlns: 'jabber:iq:register'})
-   .c('username').t('sonny@localhost').up()  // Give a username
-   .c('password').t('foo');  // Give a password
-   client.send(stanza); // send a stanza
+  	var stanza = new Client.Stanza('iq', {type: 'set', id: 'client1', to: SERVER})
+	.c('query', {xmlns: 'jabber:iq:register'})
+	.c('username').t('client1@localhost').up()  // Give a username
+	.c('password').t('foo');  // Give a password
+	client.send(stanza); // send a stanza
 };
 
 // function to send presence to the server
@@ -81,11 +78,9 @@ var sendPresence = function () {
 var sendMessage = function () {
 	var message = new Client.Stanza('message', {
 		to: 'client2',
-        from: 'client1',
-        type: 'chat'
-	});
-	message.c('body').t('chat').up({
-		'this': 'body'
+		from: 'client1',
+		type: 'chat',
+		message: 'This is the hello message been sent by client 2 to client 1'
 	});
 	client.send(message);
 }
