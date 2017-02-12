@@ -1,10 +1,9 @@
 'use strict';
 
+$(document).ready(function () {
 var client;
 var host = 'localhost';
 var name;
-
-$(document).ready(function () {
 $('#signin').click(function () {
     name = ($('#uname')[0]).value;
     var passcode = document.getElementById('password').value;

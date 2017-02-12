@@ -7,10 +7,16 @@ var clienttodatabase = require('./dbfunctions/clienttodatabase.js');
 var clientToDB = new clienttodatabase();
 
 // authentication of the client
-clientOperation.prototype.authentication = function (params, response) {
-	if (params.username && params.password) {
-		response(null, params);
+clientOperation.prototype.authentication = function (clientOptions, response) {
+	var authData = {
+		'username': clientOptions.username,
+		'password': clientOptions.password
+	};
+	if (authData.username && authData.password) {
+		log('Client trying to authenticate', clientOptions.jid);
+		response(null, clientOptions);
 	} else{
+		log('Client connection failure', clientOptions.jid);
 		response(false);
 	}
 };
