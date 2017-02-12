@@ -3,6 +3,9 @@
 var clientOperation = function () {  
 };
 
+var clienttodatabase = require('./dbfunctions/clienttodatabase.js');
+var clientToDB = new clienttodatabase();
+
 // authentication of the client
 clientOperation.prototype.authentication = function (params, response) {
 	if (params.username && params.password) {
@@ -14,20 +17,21 @@ clientOperation.prototype.authentication = function (params, response) {
 
 // client connected save into the dBase
 clientOperation.prototype.clientConnected = function (client) {
-	dBase.userConnected(client, function (err, res) {
+	clientToDB.userAuthentication(client, function (err, res) {
 		if(!err) {
 			log('Client saved in the DB');
+			res(true);
 		}
 	});
 };
 
 // registration of the client
 clientOperation.prototype.registration = function (params, response) {
-	dBase.registerUser(params, function (err, res) {
+	clientToDB.userRegistration(params, function (err, res) {
 		if (err) {
-			response(false);
+			response(null, res);
 		} else {
-			response(true);
+			response(err, null);
 		}
 	});
 };
@@ -47,6 +51,7 @@ clientOperation.prototype.processMessage = function (connections, from, message)
 			(connections[dest]).send(message);
             log('message sent to', dest);
 		}
+		clientToDB.saveMessage(message.attrs);
 	}
 };
 

@@ -54,7 +54,7 @@ server.on('connection', function (client) {
 	// Allows the developer to authenticate the user
 	client.on('authenticate', function (opts, cb) {
 		log('client trying to authenticate. JID', opts.jid);
-		clientOps.authentication(opts, cb);
+		clientOps.authentication(opts.jid, cb);
 	});
 
 	// when a client is online
