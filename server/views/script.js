@@ -4,20 +4,26 @@ var client;
 var host = 'localhost';
 var name;
 
-$('#nameSubmit').click(function () {
-    name = ($('#name')[0]).value;
-    client = new XMPP.Client({
-        jid: name + '@' + host,
-        password: 'ssdfsdf',
-        websocket: {
-            url: 'ws://localhost' + ':' + '7777'
-        },
-        autoStart: true
-    });
+$(document).ready(function () {
+$('#signin').click(function () {
+    name = ($('#uname')[0]).value;
+    passcode = document.getElementById('password').value
+    if (name && passcode) {
+        client = new XMPP.Client({
+            jid: name + '@' + host,
+            password: passcode,
+            websocket: {
+                url: 'ws://localhost' + ':' + '7777'
+            },
+            autoStart: true
+        });
+    } else {
+        document.getElementById('loginError').innerHTML = 'Username and password cannot be empty';
+    }
 
     client.on('online', function () {
         console.log('client: Client is connected to the server');
-        ($('#open')[0]).style.display = 'none';
+        ($('#userLogin')[0]).style.display = 'none';
         ($('#message')[0]).style.display = 'block';
     });
 
@@ -33,6 +39,16 @@ $('#nameSubmit').click(function () {
     });
 });
 
+$('#toSignup').click(function () {
+    document.getElementById('userLogin').style.display = 'none';
+    document.getElementById('userRegistration').style.display = 'block';
+});
+
+$('#backtoLogin').click(function () {
+    document.getElementById('userLogin').style.display = 'block';
+    document.getElementById('userRegistration').style.display = 'none';
+});
+
 $('#textSend').click(function () {
     var text = ($('#messageText')[0]).value;
     var dest = ($('#receiverName')[0]).value;
@@ -45,10 +61,45 @@ $('#textSend').click(function () {
     client.send(message);
 });
 
+// when user clicks register
+$('#register').click(function () {
+    var username = document.getElementById('username').value,
+        firstname = document.getElementById('fname').value,
+        lastname = document.getElementById('lname').value,
+        fpassword = document.getElementById('fpassword').value,
+        rpassword = document.getElementById('rpassword').value;
+    if (username && firstname && lastname && fpassword && rpassword) {
+        if (fpassword === rpassword) {
+            $.ajax({
+                type: "POST",
+                url: '/registerUser',
+                data: {
+                    'username': username,
+                    'fname': firstname,
+                    'lname': lastname,
+                    'password': fpassword
+                },
+                success: function (err, res) {
+                    document.getElementById('userLogin').style.display = 'block';
+                    document.getElementById('userRegistration').style.display = 'none';
+                },
+                error: function () {
+                    document.getElementById('registrationError').innerHTML='Failed to register user';
+                }
+            });
+        } else {
+            document.getElementById('rpassword').value = 'Passwords dont match';
+        }
+    } else {
+        document.getElementById('registrationError').innerHTML='Fields missing data';
+    }
+});
+
 $('#quit').click(function () {
-    ($('#open')[0]).style.display = 'block';
+    ($('#userLogin')[0]).style.display = 'block';
     ($('#message')[0]).style.display = 'none';
     client.end();
     name = null;
     client = null;
+});
 });

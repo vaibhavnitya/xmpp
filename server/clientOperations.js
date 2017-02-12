@@ -16,11 +16,14 @@ clientOperation.prototype.authentication = function (params, response) {
 };
 
 // client connected save into the dBase
-clientOperation.prototype.clientConnected = function (client) {
+clientOperation.prototype.clientConnected = function (client, response) {
 	clientToDB.userAuthentication(client, function (err, res) {
 		if(!err) {
-			log('Client saved in the DB');
-			res(true);
+			log('Client authenticated in the DB');
+			response(null, res);
+		} else {
+			log('Client authenticcation in DB failes');
+			response(err, null);
 		}
 	});
 };

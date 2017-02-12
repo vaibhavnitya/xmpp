@@ -6,17 +6,38 @@
         <script src="/node_modules/node-xmpp-client/browserify.js"></script>
         <script src="/views/script.js"></script>
     </head>
-    <body>
-        <div id="open" style="display:block">
-            <h1>WELCOME TO XMPP</h1>
-            <h2>
-                Enter your name:
-                <input type="text" id="name" placeholder="name">
-            </h2>
-            <input type="button" id="nameSubmit" value="START">
+    <style>
+        input{
+                width: 200px;
+                height: 25px;
+                font-size: 16px;
+            }
+    </style>
+    <body style="text-align:center">
+        <div>
+            <h1>WELCOME TO THE XMPP APLICATION</h1>
+        </div>
+        <div id = "userRegistration" style="display:none">
+            <h2>USER REGISTRATION</h2>
+            <h3>Enter a user name: <input class="input" type="text" id="username" placeholder="user name"></h3>
+            <h3>Enter your first name: <input class="input" type="text" id="fname" placeholder="first name"></h3>
+            <h3>Enter your last name: <input class="input" type="text" id="lname" placeholder="last name"></h3>
+            <h3>Enter a password: <input class="input" type="text" id="fpassword" placeholder="enter password"></h3>
+            <h3>Confirm password: <input class="input" type="text" id="rpassword" placeholder="repeat password"></h3>
+            *all the fields are mandatory<br>
+            <input type="button" id="register" value="SIGN UP">
+            <h4>To go back to login <input type="button" id="backtoLogin" value="SIGN IN"></h4>
+            <div id="registrationError"></div>
+        </div>
+        <div id="userLogin" style="display:block">
+            <h2>USER SIGN IN</h2>
+            <h3>Enter your username: <input class="input" type="text" id="uname" placeholder="user name"></h3>
+            <h3>Enter your password: <input class="input" type="text" id="password" placeholder="password"></h3>
+            <input type="button" id="signin" value="SIGN IN">
+            <h4>If not registered Sign Up here <input type="button" id="toSignup" value="SIGN UP"></h4>
+            <div id="loginError"></div>
         </div>
         <div id="message" style="display:none">
-            <h1>WELCOME TO XMPP</h1>
             <h2>
                 Message recipient:
                 <input type="text" id="receiverName" placeholder=" receiver name">
