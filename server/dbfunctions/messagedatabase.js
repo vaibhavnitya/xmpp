@@ -52,7 +52,13 @@ messageDatabase.prototype.getMessages = function (filterData, callback) {
         filterData
     }, function (err, res) {
         if(!err) {
-            callback(null, res);
+            res.toArray(function (err, messages) {
+                if(!err) {
+                    callback(null, messages);
+                } else {
+                    callback('err', null);
+                }
+            });
         } else {
             callback('err', null);
             log('Failed to get the messages', filterData);

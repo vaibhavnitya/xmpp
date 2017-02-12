@@ -53,12 +53,12 @@ clientToDatabase.prototype.userAuthentication = function (userData, callback) {
  * @param userData User data should contain from, to, message
  * @return null
  *  */
-clientToDatabase.prototype.saveMessage = function (messageData, callback) {
+clientToDatabase.prototype.saveMessage = function (messageData) {
     dbmessage.saveMessage(messageData, function (err, res) {
         if(!err) {
-            callback(null, res);
+            log('Message saved to DB', messageData.userId);
         } else {
-            log('Failed to save message to DB', userData.userId);
+            log('Failed to save message to DB', messageData.userId);
         }
     });
 };
@@ -72,9 +72,11 @@ clientToDatabase.prototype.saveMessage = function (messageData, callback) {
 clientToDatabase.prototype.getMessages = function (filterData, callback) {
     dbmessage.getMessages(filterData, function (err, res) {
         if(!err) {
+            log('Successfully retrieved message from DB', filterData.userId);
             callback(null, res);
         } else {
-            log('Failed to save message to DB', userData.userId);
+            log('Failed to save message to DB', filterData.userId);
+            callback('err', null);
         }
     });
 };
