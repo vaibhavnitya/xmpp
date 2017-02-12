@@ -18,6 +18,10 @@ var server;
 
 var connections = [];
 
+httpServer.use( bodyParser.json() );                                                   
+httpServer.use(bodyParser.urlencoded({     // to support URL-encoded bodies            
+	extended: true
+}));    
 httpServer.use(express.static(__dirname));
 
 httpServer.set('views', __dirname +'/views');
@@ -30,6 +34,31 @@ httpServer.listen(httpPORT, function() {
 
 httpServer.get('/', function(req,res){
     res.render('home');
+});
+
+httpServer.post('/registerUser', function(req,res) {
+	var data = {
+		'username': req.body.username,
+		'fname': req.body.fname,
+		'lname': req.body.lname,
+		'password': req.body.password
+	},
+	err = {
+		'err': 'incomplete data'
+	};
+	if (req.body.username && req.body.fname && req.body.lname && req.body.password) {
+		clientOps.registration(data, function (err, success) {
+			if (!err) {
+				log('successfully registered user in routes');
+				res.send({'err': null, 'message': 'successfully registered user'});
+			} else {
+				log('failed to register user in routes');
+				res.send(err);
+			}
+		});
+	} else {
+		res.send(err);
+	}
 });
 
 dBase.initiateDatabase(function (err, dBase) {

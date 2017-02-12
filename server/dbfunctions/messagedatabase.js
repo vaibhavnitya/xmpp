@@ -26,7 +26,7 @@ messageDatabase.prototype.initiate = function (dab, callback) {
  *  */
 messageDatabase.prototype.saveMessage = function (messageData, callback) {
     var now = (new Date()).getTime();
-    dbMessage.collectionMessage.insert({
+    dbMessage.collection(collectionMessage).insert({
         'fromuser': messageData.from,
         'touser': messageData.to,
         'message': messageData.message,
@@ -48,7 +48,7 @@ messageDatabase.prototype.saveMessage = function (messageData, callback) {
  * @return Oject containing messages
  *  */
 messageDatabase.prototype.getMessages = function (filterData, callback) {
-    dbMessage.collectionMessage.find({
+    dbMessage.collection(collectionMessage).find({
         filterData
     }, function (err, res) {
         if(!err) {

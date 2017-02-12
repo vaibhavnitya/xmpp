@@ -28,7 +28,7 @@ tokenDatabase.prototype.initiate = function (dab, callback) {
 tokenDatabase.prototype.createToken = function (userData, callback) {
     var newToken = crypto.randomBytes(64).toString('hex');
     var now = (new Date()).getTime();
-    dbToken.collectionToken.insert({
+    dbToken.collection(collectionToken).insert({
         'userid': userData.userId,
         'password': userData.password,
         'token': newToken,
@@ -49,7 +49,7 @@ tokenDatabase.prototype.createToken = function (userData, callback) {
  * @return Token details of the user
  *  */
 tokenDatabase.prototype.validateUserAndGetToken = function (userData, callback) {
-    dbToken.collectionToken.find({
+    dbToken.collection(collectionToken).find({
         'user': userData.userId
     }, function (err, res) {
         if(!err) {
@@ -73,7 +73,7 @@ tokenDatabase.prototype.validateUserAndGetToken = function (userData, callback) 
  * @return Oject containing user details
  *  */
 tokenDatabase.prototype.getUserFromToken = function (userToken, callback) {
-    dbToken.collectionToken.find({
+    dbToken.collection(collectionToken).find({
         'token': userToken
     }, function (err, res) {
         if(!err) {
@@ -94,7 +94,7 @@ tokenDatabase.prototype.getUserFromToken = function (userToken, callback) {
 var updateToken = function (userId, callback) {
     var newToken = crypto.randomBytes(64).toString('hex');
     var now = (new Date()).getTime();
-    dbToken.collectionToken.update(
+    dbToken.collection(collectionToken).update(
         {'userid' : userId},
         {$set:
             {

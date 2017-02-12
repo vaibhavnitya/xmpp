@@ -7,7 +7,7 @@ var name;
 $(document).ready(function () {
 $('#signin').click(function () {
     name = ($('#uname')[0]).value;
-    passcode = document.getElementById('password').value
+    var passcode = document.getElementById('password').value;
     if (name && passcode) {
         client = new XMPP.Client({
             jid: name + '@' + host,
@@ -73,6 +73,7 @@ $('#register').click(function () {
             $.ajax({
                 type: "POST",
                 url: '/registerUser',
+                dataType: "json",
                 data: {
                     'username': username,
                     'fname': firstname,
@@ -82,9 +83,12 @@ $('#register').click(function () {
                 success: function (err, res) {
                     document.getElementById('userLogin').style.display = 'block';
                     document.getElementById('userRegistration').style.display = 'none';
+                    console.log('Success');
+                    console.log(res);
                 },
                 error: function () {
                     document.getElementById('registrationError').innerHTML='Failed to register user';
+                    console.log('Failed');
                 }
             });
         } else {

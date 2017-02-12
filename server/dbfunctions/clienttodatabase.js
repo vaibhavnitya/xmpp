@@ -21,7 +21,7 @@ var dbmessage = new messagedatabase();
  * @return Oject containing token
  *  */
 clientToDatabase.prototype.userRegistration = function (userData, callback) {
-    dbUser.createuser(userData, function (err, res) {
+    dbUser.createUser(userData, function (err, res) {
         if(!err) {
             callback(null, res);
         } else {

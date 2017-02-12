@@ -8,7 +8,7 @@ var dbtoken = new tokendatabase();
 var userDatabase = function () {
 };
 
-var dbUsers;
+var dbUsers = null;
 var collectionUser = 'user';
 
 /**
@@ -30,36 +30,36 @@ userDatabase.prototype.initiate = function (dab) {
  *  */
 userDatabase.prototype.createUser = function (userData, callback) {
     var now = (new Date()).getTime();
-    dbUsers.collectionUser.update(
-        {'username' : userData.username},
-        {$set:
-            {
-                'username': userData.username,
-                'fname': userData.fname,
-                'lname': userData.lname,
-                'created': now,
-                'updated': now
-            }
-        },
-        {
-            upsert: true,
-            multi: false
-        }, function (err, res) {
-            if (!err) {
-                var tokenData = {'userId': res._id, 'password': userData.password};
-                log('Created new user', userData);
-                dbtoken.createToken(tokenData, function (err, newToken) {
-                    if(!err) {
-                        callback(null, newToken);
+    userDatabase.prototype.findUserByUsername (userData.username, function (err, user) {
+        if(!err && user === null) {
+            dbUsers.collection(collectionUser).insert(
+                    {
+                        'username': userData.username,
+                        'fname': userData.fname,
+                        'lname': userData.lname,
+                        'created': now,
+                        'updated': now
+                    }, function (err, res) {
+                    if (!err) {
+                        var tokenData = {'userId': res.ops[0]._id, 'password': userData.password};
+                        log('Created new user', userData);
+                        dbtoken.createToken(tokenData, function (err, newToken) {
+                            if(!err) {
+                                callback(null, newToken);
+                            } else {
+                                callback(err, null);
+                            } 
+                        });
                     } else {
                         callback(err, null);
-                    } 
+                        log('Failed to create user', userData);
+                    }
                 });
-            } else {
-                callback(err, null);
-                log('Failed to create user', userData);
-            }
-        });
+        } else {
+            log('User already exists', userData.username);
+            callback(err, null);
+        }
+    });
 };
 
 /**
@@ -69,7 +69,7 @@ userDatabase.prototype.createUser = function (userData, callback) {
  * @return tokenOject Returns a token object
  *  */
 userDatabase.prototype.loginUser = function (userData, callback) {
-    dbUsers.collectionUser.find(
+    dbUsers.collection(collectionUser).find(
         {'username' : userData.username},
         function (err, res) {
             if (!err) {
@@ -86,6 +86,35 @@ userDatabase.prototype.loginUser = function (userData, callback) {
             }
         });
 };
+
+/**
+ * To find a user by username
+ * @method userDatabase.findUserByUsername On user sign in
+ * @param userData Must have unique username(phone number)
+ * @return null if no user is found
+ * @return userObject if any user exists
+ *  */
+userDatabase.prototype.findUserByUsername = function (username, callback) {
+    dbUsers.collection(collectionUser).find(
+        {'username' : username},
+        function (err, res) {
+            if (!err) {
+                res.toArray(function(err, users){
+                    if(users.length === 0) {
+                        log('User does not exist', username);
+                        callback(null, null);
+                    } else {
+                        log('User exists', username);
+                        callback(null, res);
+                    } 
+                });
+            } else {
+                log('Error in finding user', username);
+                callback(err, null);
+            }
+        });
+};
+
 
 module.exports = userDatabase;
 
