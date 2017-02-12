@@ -35,7 +35,7 @@ messageDatabase.prototype.saveMessage = function (messageData, callback) {
         if(!err) {
             callback(null, true);
         } else {
-            callback(err, null);
+            callback('err', null);
             log('Failed to save the message', messageData);
         }
     });
@@ -54,7 +54,7 @@ messageDatabase.prototype.getMessages = function (filterData, callback) {
         if(!err) {
             callback(null, res);
         } else {
-            callback(err, null);
+            callback('err', null);
             log('Failed to get the messages', filterData);
         }
     });

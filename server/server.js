@@ -53,7 +53,7 @@ httpServer.post('/registerUser', function(req,res) {
 				res.send({'err': null, 'message': 'successfully registered user'});
 			} else {
 				log('failed to register user in routes');
-				res.send(err);
+				res.send({'err': 'failed to register'});
 			}
 		});
 	} else {
@@ -81,9 +81,17 @@ server.on('connection', function (client) {
     });
 
 	// Allows the developer to authenticate the user
-	client.on('authenticate', function (opts, cb) {
+	client.on('authenticate', function (opts, response) {
 		log('client trying to authenticate. JID', opts.jid);
-		clientOps.authentication(opts, cb);
+		clientOps.authentication(opts, function (err, res) {
+			if(!err) {
+				log('Client connected response on authentication complete');
+				response(null, opts);
+			} else {
+				log('Client failed to connect on authentication failure');
+				response(false);
+			}
+		});
 	});
 
 	// when a client is online

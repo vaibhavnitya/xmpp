@@ -7,40 +7,40 @@ var clienttodatabase = require('./dbfunctions/clienttodatabase.js');
 var clientToDB = new clienttodatabase();
 
 // authentication of the client
-clientOperation.prototype.authentication = function (clientOptions, response) {
+clientOperation.prototype.authentication = function (clientOptions, callback) {
 	var authData = {
 		'username': clientOptions.username,
 		'password': clientOptions.password
 	};
 	if (authData.username && authData.password) {
 		log('Client trying to authenticate', clientOptions.jid);
-		response(null, clientOptions);
+		clientToDB.userAuthentication(authData, function (err, res) {
+			if(!err) {
+				log('Client authenticated in the DB');
+				callback(null, res);
+			} else {
+				log('Client authentication in DB failed');
+				callback('err', null);
+			}
+		});
 	} else{
 		log('Client connection failure', clientOptions.jid);
-		response(false);
+		callback('err', null);
 	}
 };
 
 // client connected save into the dBase
 clientOperation.prototype.clientConnected = function (client, response) {
-	clientToDB.userAuthentication(client, function (err, res) {
-		if(!err) {
-			log('Client authenticated in the DB');
-			response(null, res);
-		} else {
-			log('Client authenticcation in DB failes');
-			response(err, null);
-		}
-	});
+	
 };
 
 // registration of the client
 clientOperation.prototype.registration = function (params, response) {
 	clientToDB.userRegistration(params, function (err, res) {
-		if (err) {
+		if (!err) {
 			response(null, res);
 		} else {
-			response(err, null);
+			response('err', null);
 		}
 	});
 };

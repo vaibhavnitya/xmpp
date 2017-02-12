@@ -47,17 +47,17 @@ userDatabase.prototype.createUser = function (userData, callback) {
                             if(!err) {
                                 callback(null, newToken);
                             } else {
-                                callback(err, null);
+                                callback('err', null);
                             } 
                         });
                     } else {
-                        callback(err, null);
+                        callback('err', null);
                         log('Failed to create user', userData);
                     }
                 });
         } else {
             log('User already exists', userData.username);
-            callback(err, null);
+            callback('err', null);
         }
     });
 };
@@ -73,16 +73,26 @@ userDatabase.prototype.loginUser = function (userData, callback) {
         {'username' : userData.username},
         function (err, res) {
             if (!err) {
-                var userId = {'userId': res._id, 'password': userData.password};
-                dbtoken.validateUserAndGetToken(userId, function (err, token) {
-                    if(!err) {
-                        callback(null, token);
+                res.toArray(function(err, users){
+                    if(users.length > 0) {
+                        var userId = {'userId': users[0]._id, 'password': userData.password};
+                        dbtoken.validateUserAndGetToken(userId, function (err, token) {
+                            if(!err) {
+                                log('Successfully authenticated', users[0]._id);
+                                callback(null, token);
+                            } else {
+                                log('Failed to authenticate', users[0]._id);
+                                callback('err', null);
+                            } 
+                        });
                     } else {
-                        callback(err, null);
-                    } 
+                        log('No user exists for username', userData.username);
+                        callback('err', null);
+                    }
                 });
             } else {
                 log('Could not find user', userData);
+                callback('err', null);
             }
         });
 };
@@ -110,7 +120,7 @@ userDatabase.prototype.findUserByUsername = function (username, callback) {
                 });
             } else {
                 log('Error in finding user', username);
-                callback(err, null);
+                callback('err', null);
             }
         });
 };

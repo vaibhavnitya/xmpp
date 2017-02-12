@@ -36,8 +36,10 @@ tokenDatabase.prototype.createToken = function (userData, callback) {
     }, function (err, res) {
         if(!err) {
             log('Successfully generated new token for user', userData.userId);
+            callback(null, res);
         } else {
             log('Failed to generate new token for user', userData.userId);
+            callback('err', null);
         }
     });
 };
@@ -50,18 +52,21 @@ tokenDatabase.prototype.createToken = function (userData, callback) {
  *  */
 tokenDatabase.prototype.validateUserAndGetToken = function (userData, callback) {
     dbToken.collection(collectionToken).find({
-        'user': userData.userId
+        'userid': userData.userId
     }, function (err, res) {
         if(!err) {
-            if(userData.password === res.password) {
-                callback(null, res.token);
-            } else {
-                log('Error in authentication, User:', userData.userId);
-                callback(err, null);
-            }
+            res.toArray(function(err, user){
+                if(user[0] && userData.password === user[0].password) {
+                    log('User successfully authenticated', userData.userId);
+                    callback(null, res.token);
+                } else {
+                    log('User failed to authenticate', userData.userId);
+                    callback('err', null);
+                }
+            });
         } else {
             log('Error in retrieving data', userData.user);
-            callback(errr, null);
+            callback('err', null);
         }
     });
 };
@@ -80,7 +85,7 @@ tokenDatabase.prototype.getUserFromToken = function (userToken, callback) {
             callback(null, res);
         } else {
             log('Error in retrieving data', userToken);
-            callback(errr, null);
+            callback('err', null);
         }
     });
 };
@@ -107,9 +112,9 @@ var updateToken = function (userId, callback) {
             multi: false
         }, function (err, res) {
             if (!err) {
-                callbac(null, res);
+                callback(null, res);
             } else {
-                callback(err, null);
+                callback('err', null);
                 log('Failed to update token', userId);
             }
         });

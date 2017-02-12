@@ -33,7 +33,7 @@ clientToDatabase.prototype.userRegistration = function (userData, callback) {
 /**
  * Authenticates the user against username password
  * @method clientToDatabase.userAuthentication User sign in to DB
- * @param userData User data should contain userId and password
+ * @param userData User data should contain username and password
  * @return Oject containing token
  *  */
 clientToDatabase.prototype.userAuthentication = function (userData, callback) {
@@ -42,6 +42,7 @@ clientToDatabase.prototype.userAuthentication = function (userData, callback) {
             callback(null, res);
         } else {
             log('Failed to login the user', userData.userId);
+            callback('err', null);
         }
     });
 };

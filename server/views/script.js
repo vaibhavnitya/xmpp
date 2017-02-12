@@ -82,8 +82,8 @@ $('#register').click(function () {
                 success: function (err, res) {
                     document.getElementById('userLogin').style.display = 'block';
                     document.getElementById('userRegistration').style.display = 'none';
+                    document.getElementById('registrationError').innerHTML='Successfully registered user';
                     console.log('Success');
-                    console.log(res);
                 },
                 error: function () {
                     document.getElementById('registrationError').innerHTML='Failed to register user';

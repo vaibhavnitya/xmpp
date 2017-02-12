@@ -18,7 +18,7 @@ dbstructure.prototype.createCollections = function (dab, callback) {
         if (!err) {
             callback(null, true);
         } else {
-            callback(err, null);
+            callback('err', null);
         }
     });
 };
@@ -29,7 +29,7 @@ var userCollection = function (callback){
             callback(null, collection);
             log('Successfully created collection', collection);
         } else {
-            callback(err, null);
+            callback('err', null);
             log('Failed to create collection user');
         }
     });
@@ -41,7 +41,7 @@ var tokenCollection = function (callback){
             callback(null, collection);
             log('Successfully created collection', collection);
         } else {
-            callback(err, null);
+            callback('err', null);
             log('Failed to create collection token');
         }
     });
@@ -53,7 +53,7 @@ var messagesCollection = function (callback){
             callback(null, collection);
             log('Successfully created collection', collection);
         } else {
-            callback(err, null);
+            callback('err', null);
             log('Failed to create collection message');
         }
     });
