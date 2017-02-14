@@ -41,12 +41,16 @@
             <h2>
                 Message recipient:
                 <input type="text" id="receiverName" placeholder=" receiver user name">
+                <input type="button" id="changeChat" value="CHANGE" style="display:none">
+                <input type="button" id="startChat" value="START" style="display:inline">
             </h2>
-            <div id="allMessages">
+            <div id="userArea" style="display:none">
+                <div id="allMessages">
+
+                </div>
+                <textarea id="messageText" cols="40" rows="5" style="font-size:20px"></textarea>
+                <h2><input type="button" id="textSend" value="SEND"></h2>
             </div>
-            <h2>Enter your Text Messages</h2>
-            <textarea id="messageText" cols="40" rows="5"></textarea>
-            <h2><input type="button" id="textSend" value="SEND"></h2>
             <h2><br><br><input type="button" id="quit" value="QUIT"></h2>
         </div>
     </body>

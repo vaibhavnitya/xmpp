@@ -3,7 +3,7 @@
 $(document).ready(function () {
 var client;
 var host = 'localhost';
-var name;
+var name, receiverName;
 $('#signin').click(function () {
     name = ($('#uname')[0]).value;
     var passcode = document.getElementById('password').value;
@@ -48,11 +48,27 @@ $('#backtoLogin').click(function () {
     document.getElementById('userRegistration').style.display = 'none';
 });
 
+$('#startChat').click(function () {
+    receiverName =  document.getElementById('receiverName').value;
+    if (receiverName) {
+        userStartsChat();
+        var message = new XMPP.Client.Stanza('message', {
+            to: receiverName,
+            from: name,
+            type: 'getHistory'
+        });
+        client.send(message);
+    }
+});
+
+$('#changeChat').click(function () {
+    userChangesChat();
+});
+
 $('#textSend').click(function () {
     var text = ($('#messageText')[0]).value;
-    var dest = ($('#receiverName')[0]).value;
     var message = new XMPP.Client.Stanza('message', {
-        to: dest,
+        to: receiverName,
         from: name,
         type: 'chat',
         message: text
@@ -98,7 +114,23 @@ $('#register').click(function () {
     }
 });
 
+var userStartsChat = function () {
+    document.getElementById('receiverName').disabled = true;
+    document.getElementById('changeChat').style.display = 'inline';
+    document.getElementById('startChat').style.display = 'none';
+    document.getElementById('userArea').style.display = 'block';
+}
+
+var userChangesChat = function () {
+    document.getElementById('receiverName').disabled = false;
+    document.getElementById('changeChat').style.display = 'none';
+    document.getElementById('startChat').style.display = 'inline';
+    document.getElementById('userArea').style.display = 'none';
+    document.getElementById('receiverName').value = null;
+}
+
 $('#quit').click(function () {
+    userChangesChat();
     ($('#userLogin')[0]).style.display = 'block';
     ($('#message')[0]).style.display = 'none';
     client.end();
