@@ -108,7 +108,7 @@ server.on('connection', function (client) {
 
 	// On Disconnect event. When a client disconnects
     client.on('disconnect', function () {
-    	log('client is diconnected', client.jid.local);
+    	log('client is diconnected', (client.jid? client.jid.local: 'unknown'));
     });
 });
 

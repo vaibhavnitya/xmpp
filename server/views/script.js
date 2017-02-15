@@ -12,7 +12,7 @@ $('#signin').click(function () {
             jid: name + '@' + host,
             password: passcode,
             websocket: {
-                url: 'ws://localhost' + ':' + '7777'
+                url: 'ws://' + host + ':' + '7777'
             },
             autoStart: true
         });
@@ -31,10 +31,17 @@ $('#signin').click(function () {
         var parser = new DOMParser();
         var xmlDoc = parser.parseFromString(stanza,"text/xml");
         var message = xmlDoc.getElementsByTagName('message')[0];
-        var to = message.getAttribute('to');
-        var from = message.getAttribute('from');
-        var messageText = message.getAttribute('message');
-        ($('#allMessages')[0]).innerHTML += '<br>' + 'From:' + from + '<br>' + messageText +'<br>';
+        if (message.getAttribute('type') === 'chat') {
+            var to = message.getAttribute('to');
+            var from = message.getAttribute('from');
+            var messageText = message.getAttribute('message');
+            var time = new Date(parseInt(message.getAttribute('time')));
+            ($('#allMessages')[0]).innerHTML += '<br>' + 'From:' + from + '<br>' + 'To: ' +
+            to + '<br>' + 'Time: ' + time + '<br>' + messageText +'<br>';
+        } else if (message.getAttribute('type') === 'history') {
+            console.log(stanza);
+            displayMessages(message.getAttribute('messages'));
+        }
     });
 });
 
@@ -49,13 +56,15 @@ $('#backtoLogin').click(function () {
 });
 
 $('#startChat').click(function () {
+    var now = (new Date()).getTime();
     receiverName =  document.getElementById('receiverName').value;
     if (receiverName) {
         userStartsChat();
         var message = new XMPP.Client.Stanza('message', {
             to: receiverName,
             from: name,
-            type: 'getHistory'
+            type: 'getHistory',
+            time: now
         });
         client.send(message);
     }
@@ -67,13 +76,21 @@ $('#changeChat').click(function () {
 
 $('#textSend').click(function () {
     var text = ($('#messageText')[0]).value;
-    var message = new XMPP.Client.Stanza('message', {
-        to: receiverName,
-        from: name,
-        type: 'chat',
-        message: text
-    });
-    client.send(message);
+    if (text.length && text.length < 250) {
+        var now = new Date();
+        var timeStamp = now.getTime();
+        var message = new XMPP.Client.Stanza('message', {
+            to: receiverName,
+            from: name,
+            type: 'chat',
+            time: timeStamp,
+            message: text
+        });
+        document.getElementById('allMessages').innerHTML += '<br>' + 'From: ' + name + '<br>' +
+            'To: ' + receiverName + '<br>' + 'Time: ' + now + '<br>' + text +'<br>';
+        client.send(message);
+        document.getElementById('messageText').value = null;
+    }
 });
 
 // when user clicks register
@@ -114,11 +131,21 @@ $('#register').click(function () {
     }
 });
 
+var displayMessages = function (msgs) {
+    var messages = JSON.parse(msgs);
+    for (var i = 0; i < messages.length; i++) {
+        var message = messages[i], time = new Date(messages[i].time);
+        document.getElementById('allMessages').innerHTML += '<br>' + 'From: ' + message.fromuser + '<br>' +
+        'To: ' + message.touser + '<br>' + 'Time: ' + time + '<br>' + message.message +'<br>';
+    }
+};
+
 var userStartsChat = function () {
     document.getElementById('receiverName').disabled = true;
     document.getElementById('changeChat').style.display = 'inline';
     document.getElementById('startChat').style.display = 'none';
     document.getElementById('userArea').style.display = 'block';
+    document.getElementById('messageText').value = null;
 }
 
 var userChangesChat = function () {
@@ -127,6 +154,7 @@ var userChangesChat = function () {
     document.getElementById('startChat').style.display = 'inline';
     document.getElementById('userArea').style.display = 'none';
     document.getElementById('receiverName').value = null;
+    document.getElementById('allMessages').innerHTML = '';
 }
 
 $('#quit').click(function () {

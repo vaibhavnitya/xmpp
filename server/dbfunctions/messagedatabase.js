@@ -48,15 +48,22 @@ messageDatabase.prototype.saveMessage = function (messageData, callback) {
  * @return Oject containing messages
  *  */
 messageDatabase.prototype.getMessages = function (filterData, callback) {
+    var user1 = filterData[0], user2 = filterData[1], time = filterData[2];
+    var filter1 = {'touser': user1, 'fromuser': user2};
+    var filter2 = {'touser': user2, 'fromuser': user1};
+
     dbMessage.collection(collectionMessage).find({
-        filterData
+        $or:[filter1, filter2]
+    }, {
+        '_id': 0
     }, function (err, res) {
         if(!err) {
             res.toArray(function (err, messages) {
                 if(!err) {
                     callback(null, messages);
                 } else {
-                    callback('err', null);
+                    log('Failed to get the messages', filterData);
+                    log('failed to ')
                 }
             });
         } else {

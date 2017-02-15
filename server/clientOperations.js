@@ -54,13 +54,30 @@ clientOperation.prototype.processMessage = function (connections, from, message)
 		updatePresence(client.jid.local, message.attrs.status);
 	} else if (message.is('message')) {
     	// Stanza handling
-		var dest = message.attrs.to;
-		message.attrs.from =  from;
-		if (connections[dest]) {
-			(connections[dest]).send(message);
-            log('message sent to', dest);
+		if(message.attrs && message.attrs.type === 'chat' && message.attrs.message.length && message.attrs.message.length < 250) {
+			var dest = message.attrs.to;
+			message.attrs.from =  from;
+			message.attrs.time = (new Date()).getTime(); 
+			if (connections[dest]) {
+				(connections[dest]).send(message);
+				log('message sent to', dest);
+			}
+			clientToDB.saveMessage(message.attrs);
+		} else if(message.attrs.type === 'getHistory'){
+			var filter = [from, message.attrs.to, message.attrs.time];
+			clientToDB.getMessages(filter, function (err, res) {
+				if (!err) {
+					if (connections[from]) {
+						message.attrs.type = 'history';
+						message.attrs.to = from;
+						message.attrs.from = 'server';
+						message.attrs.messages = JSON.stringify(res);
+						(connections[from]).send(message);
+						log('Successfully sent history messages to the client', from);
+					}
+				}
+			});
 		}
-		clientToDB.saveMessage(message.attrs);
 	}
 };
 
