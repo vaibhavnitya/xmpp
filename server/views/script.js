@@ -75,10 +75,15 @@ $('#changeChat').click(function () {
 });
 
 $('#textSend').click(function () {
+    sendMessage();
+});
+
+var sendMessage = function () {
     var text = ($('#messageText')[0]).value;
     if (text.length && text.length < 250) {
         var now = new Date();
         var timeStamp = now.getTime();
+        var msgData = {'fromuser': name, 'touser': receiverName, 'time': timeStamp, 'message': text};
         var message = new XMPP.Client.Stanza('message', {
             to: receiverName,
             from: name,
@@ -86,12 +91,11 @@ $('#textSend').click(function () {
             time: timeStamp,
             message: text
         });
-        document.getElementById('allMessages').innerHTML += '<br>' + 'From: ' + name + '<br>' +
-            'To: ' + receiverName + '<br>' + 'Time: ' + now + '<br>' + text +'<br>';
+        displayMessageToUI(msgData);
         client.send(message);
         document.getElementById('messageText').value = null;
     }
-});
+};
 
 // when user clicks register
 $('#register').click(function () {
@@ -134,9 +138,24 @@ $('#register').click(function () {
 var displayMessages = function (msgs) {
     var messages = JSON.parse(msgs);
     for (var i = 0; i < messages.length; i++) {
-        var message = messages[i], time = new Date(messages[i].time);
-        document.getElementById('allMessages').innerHTML += '<br>' + 'From: ' + message.fromuser + '<br>' +
-        'To: ' + message.touser + '<br>' + 'Time: ' + time + '<br>' + message.message +'<br>';
+        displayMessageToUI(messages[i]);
+    }
+};
+
+var displayMessageToUI = function (message) {
+    var date = new Date(message.time);
+    var displayDate = date.getHours() + ':' + date.getMinutes() + ', ';
+    displayDate += date.getDay() + '/' + date.getMonth() + '/' + date.getFullYear();
+    if(message.fromuser === name) {
+        document.getElementById('allMessages').innerHTML += '<div class="from-message">' +
+        '<div class="from-message-text">' + message.message +'</div>'+
+        '<div class="message-time">' + displayDate + '</div>'+ 
+        '<div>';
+    } else {
+        document.getElementById('allMessages').innerHTML += '<div class="to-message">' +
+        '<div class="to-message-text">' + message.message +'</div>'+
+        '<div class="message-time">' + displayDate + '</div>'+ 
+        '<div>';
     }
 };
 
@@ -146,6 +165,9 @@ var userStartsChat = function () {
     document.getElementById('startChat').style.display = 'none';
     document.getElementById('userArea').style.display = 'block';
     document.getElementById('messageText').value = null;
+    setTimeout(function () {
+        document.getElementById('allMessages').scrollTop = document.getElementById('allMessages').scrollHeight;
+    }, 1000);
 }
 
 var userChangesChat = function () {

@@ -12,6 +12,38 @@
                 height: 25px;
                 font-size: 16px;
             }
+        .from-message {
+            text-align: right;
+            margin-right: 5px;
+            max-width: 50%;
+            margin-left: 50%;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .from-message-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+            font-family: cursive; 
+            background-color: azure;
+        }
+        .to-message {
+            text-align: left;
+            margin-left: 5px;
+            max-width: 50%;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .to-message-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-family: cursive; 
+            background-color: bisque;
+        }
+        .message-time {
+            font-family: monospace;
+            color: darkgrey;
+        }
     </style>
     <body style="text-align:center">
         <div>
@@ -46,10 +78,11 @@
             </h2>
             <div id="userArea" style="display:none">
                 <div style="max-height: 350px; max-width: 700px; margin-left: 27%;">
-                    <div id="allMessages" style="max-height: 330px; overflow-y: scroll;">
+                    <div id="allMessages" style="max-height: 330px; overflow-y: scroll; padding-left: 14px; padding-right: 14px">
                     </div>
                 </div>
-                <textarea id="messageText" cols="40" rows="5" style="font-size:20px"></textarea>
+                <br>
+                <textarea id="messageText" cols="40" rows="3" maxlength="250" style="font-size:20px"></textarea>
                 <h2><input type="button" id="textSend" value="SEND"></h2>
             </div>
             <h2><br><input type="button" id="quit" value="QUIT"></h2>
